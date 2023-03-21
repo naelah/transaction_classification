@@ -1,0 +1,59 @@
+defaults:
+  - _self_ # Ref: https://hydra.cc/docs/tutorials/basic/your_first_app/defaults/#composition-order-of-primary-config
+  - dataset: pfm
+  - model: svc
+data_bucket: s3://davinci-artefacts-254365159529
+split_test_ratio: 0.2
+random_state: 99
+
+# Preprocess
+column_transaction_description: description
+column_description: description
+column_category: category
+column_subcategory: subcategory
+column_amount: amount
+
+# Postprocess
+column_t_description: description
+column_o_merchant: merchant
+column_subtype: source
+column_cat_subcat: category_subcategory
+
+## Cloud
+# category_output_prediction: ${data_bucket}/data/output/${model.name}_category_predictions.csv
+# category_output_model: ${data_bucket}/models/${model.category_outputh_joblib}
+# subcategory_output_prediction: ${data_bucket}/data/output/${model.name}_subcategory_predictions.csv
+# subcategory_output_model: ${data_bucket}/models/${model.subcategory_outputh_joblib}
+
+# suffix
+suffix : 'ALL_19JAN_NO_AMOUNT'
+
+## Local
+category_output_prediction: container/experimentPipeline/output/${model.name}_category_predictions_${suffix}.csv
+category_output_prediction_test: container/experimentPipeline/output/${model.name}_category_predictions_${suffix}_test.csv
+category_output_model: container/experimentPipeline/output/models/${model.name}_category_output_${suffix}.joblib
+subcategory_output_prediction: container/experimentPipeline/output/${model.name}_subcategory_predictions_${suffix}.csv
+subcategory_output_model: container/experimentPipeline/output/models/${model.name}_subcategory_output_${suffix}.joblib
+category_subcategory_output_prediction: container/experimentPipeline/output/${model.name}_sit_category_subcategory_predictions_${suffix}.csv
+category_subcategory_output_prediction_test: container/experimentPipeline/output/${model.name}_category_subcategory_predictions_${suffix}_test.csv
+category_subcategory_output_model: container/experimentPipeline/output/models/${model.name}_category_subcategory_output_${suffix}.joblib
+
+
+
+# MLFlow
+mlflow_uri: http://mlflow.kestrl.io
+mlflow_training_experiment: Training_Model_Fargate
+mlflow_testing_experiment: Testing_Model_Fargate
+
+# Training cross validation
+kfold: 5
+
+# Files
+# LABEL_FILE: utils/label.json
+# CATEGORY_FILE: utils/categories.json
+LABEL_FILE: container/experimentPipeline/utils/beu_category_labels.csv # for local run
+MCC_FILE: container/experimentPipeline/utils/beu_mcc_266.csv
+#CATEGORY_FILE: container/experimentPipeline/utils/categories.json # for local run
+FASTTEXT: container/experimentPipeline/utils/wiki-news-300d-1M-subword.bin
+MERCHANTS_FILE: container/experimentPipeline/utils/merchants.csv
+GENERIC_MERCHANTS_FILE: container/experimentPipeline/utils/generic_merchants.csv

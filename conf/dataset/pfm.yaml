@@ -1,0 +1,36 @@
+name: pfm
+file: /utils/transaction_dataset_training.csv
+test_file: /utils/transaction_dataset_testing.csv
+
+delimiter: ","
+
+column_description: description
+column_category: category
+column_subcategory: subcategory
+column_category_subcategory: category_subcategory
+column_predicted_category: 'E_CATEGORY'
+column_category_subcategory_label: 'CATEGORY_SUBCATEGORY_LABEL'
+column_category_label: 'CATEGORY_LABEL'
+column_subcategory_label: 'SUBCATEGORY_LABEL'
+column_amount: 'amount'
+column_mcc: mcc
+column_mcc_description: mcc_description
+column_description_source: 'DESCRIPTION'
+column_description_destination: 'O_TRANSACTION_DESCRIPTION'
+column_final_description: 'T_DESCRIPTION'
+column_subtype: 'SUBTYPE'
+column_transaction_type_desc: 'TRANSACTION_TYPE_DESC'
+column_transaction_type: 'TRANSACTION_TYPE'
+
+# Balancing Dataset
+n_samples_category: 1000
+n_samples_subcategory: 1000
+n_samples_category_subcategory: 1000
+min_samples_category: 3
+min_samples_subcategory: 3
+min_samples_category_subcategory: 3
+
+# Validation
+column_exist: ['description', 'amount']
+column_unique: []
+column_no_null: []
