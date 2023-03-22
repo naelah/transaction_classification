@@ -111,9 +111,16 @@ def main(cfg: DictConfig):
         model = ModelServing(cfg, 'category_subcategory', model=None)
         predicted_df = model.predict_target(X, X_test, 'category_subcategory')
 
-        # Exported predicted data
-        predicted_df.to_csv(cfg.category_subcategory_output_prediction)
+        # Postprocess predicted data
+        post_process = PostProcess(
+            cfg, predicted_df, params["region"], params["table_name"]
+        )
+        predicted_processed_df = post_process.enrich_predictions()
+
+         # Exported predicted data
+        predicted_processed_df.to_csv(cfg.category_subcategory_output_prediction)
         logger.info("Predicted categories and subcategories successfully exported")
+
 
 
     else:
