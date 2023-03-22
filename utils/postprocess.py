@@ -26,7 +26,7 @@ class PostProcess:
         self._cfg = cfg
 
         #local files
-        self.beu_merchants_dict = cfg.MERCHANTS_FILE
+        self.merchants_dict = cfg.MERCHANTS_FILE
         self.generic_dict = cfg.GENERIC_MERCHANTS_FILE
 
         #Setting column names
@@ -46,15 +46,15 @@ class PostProcess:
 
     def enrich_predictions(self):
         #logger.info(f"Scanning table {self._tableName} to get Merchants")
-        #beu_merchants_list = self.scan_beu_merchants()
-        #beu_merchants_df = pd.DataFrame(beu_merchants_list)
-        #logger.info(f"Merchant table size: {beu_merchants_df.shape}")
-        beu_merchants_df = pd.read_csv(self.beu_merchants_dict)
-        beu_merchants_df.set_index("merchant_name", inplace=True)
-        beu_merchants_df = beu_merchants_df[
+        #merchants_list = self.scan_merchants()
+        #merchants_df = pd.DataFrame(merchants_list)
+        #logger.info(f"Merchant table size: {merchants_df.shape}")
+        merchants_df = pd.read_csv(self.merchants_dict)
+        merchants_df.set_index("merchant_name", inplace=True)
+        merchants_df = merchants_df[
             ["regex", "filename", "category", "subcategory", "dominant_color"]
         ]
-        beu_merchants_dict = beu_merchants_df.to_dict("index")
+        merchants_dict = merchants_df.to_dict("index")
 
         generic_merchants_df = pd.read_csv(self.generic_dict)
         generic_merchants_df.set_index("merchant_name", inplace=True)
@@ -64,9 +64,9 @@ class PostProcess:
         generic_dict = generic_merchants_df.to_dict("index")
         df = self._df
         #df = self.clean_descriptions(df)
-        df = self.set_merchant_name_cat_subcat(beu_merchants_dict, df)
+        df = self.set_merchant_name_cat_subcat(merchants_dict, df)
         df = self.mapping_categories_subcategories(df)
-        df = self.set_merchant_with_logo(beu_merchants_dict, df)
+        df = self.set_merchant_with_logo(merchants_dict, df)
         df = self.set_generic_cat_subcat(generic_dict, df)
         #df = self.get_logo_colour(df)
         #df = self.clean_merchants(df)
@@ -83,7 +83,7 @@ class PostProcess:
         df[self._col_t_description] = self._clean_column(df[self._col_t_description])
         return df
 
-    def set_merchant_name_cat_subcat(self, beu_merchants_dict, df):
+    def set_merchant_name_cat_subcat(self, merchants_dict, df):
         # Create new columns with NaN values
         df[["E_MERCHANT_NAME", "E_MERCHANT_CATEGORY_SUBCATEGORY"]] = np.nan
 
@@ -96,7 +96,7 @@ class PostProcess:
         #df = self._clean_transfer_transactions(df, "T_MERCHANT")
 
         # Loop through merchant dictionary and update relevant columns
-        for merchant_name, merch in beu_merchants_dict.items():
+        for merchant_name, merch in merchants_dict.items():
             mask = df["T_MERCHANT"].str.contains(merch["regex"], regex=True) & df["E_MERCHANT_NAME"].isna()
             df.loc[mask, "E_MERCHANT_NAME"] = merchant_name
             df.loc[mask, "E_MERCHANT_CATEGORY_SUBCATEGORY"] = merch["category"] + "_" + merch["subcategory"]
@@ -142,11 +142,11 @@ class PostProcess:
         )
         return df
 
-    def set_merchant_with_logo(self, beu_merchants_dict, df):
+    def set_merchant_with_logo(self, merchants_dict, df):
         # Mapping default logo for category first
         df["E_MERCHANT_LOGO"] = df["E_CATEGORY_LABEL"].map(self._category_logo)
 
-        for merchant_name, merch in beu_merchants_dict.items():
+        for merchant_name, merch in merchants_dict.items():
             filter_df = df[
                 df["T_MERCHANT"].str.contains(merch["regex"], regex=True) == True
             ]
@@ -154,7 +154,7 @@ class PostProcess:
             df.loc[filter_index, "E_MERCHANT_LOGO"] = merch["filename"]
         return df
 
-    def scan_beu_merchants(self):
+    def scan_merchants(self):
         results = []
         last_evaluated_key = None
 
